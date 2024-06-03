@@ -9,17 +9,18 @@ export const UserProvider = ({ children }) => { //(children) app.js ב UserProvi
   const [CurrentUser, setCurrentUserState] = useState('');
   const [NumOfVisitors, setNumOfVisitorsState] = useState([]);
   const [visitor, setvisitor] = useState(false);
+  const path="https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images"
 
   const imagePaths={ //נתיבי התמונות שבשרת
-    chat: { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/chat.png" },
-    chatFill: { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/chatFill.png" },
-    forum : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/forum.png" },
-    forumFill : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/forumFill.png" },
-    home : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/home.png" },
-    homeFill : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/homeFill.png" },
-    calendar : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/calendar.png" },
-    calendarFill : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/calendarIconL.png" },
-    mail : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/mail.png" },
+    chat: { uri: `${path}/chat.png` },
+    chatFill: { uri: `${path}/chatFill.png` },
+    forum : { uri: `${path}/forum.png` },
+    forumFill : { uri: `${path}/forumFill.png` },
+    home : { uri: `${path}/home.png` },
+    homeFill : { uri:  `${path}/homeFill.png` },
+    calendar : { uri: `${path}/calendar.png` },
+    calendarFill : { uri: `${path}/calendarIconL.png` },
+    mail : { uri: `${path}/mail.png` },
     mailFill : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/mailFill.png" },
     documentsFill:{ uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/documents.png" },
     bell : { uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/bell.png" },
@@ -50,8 +51,8 @@ export const UserProvider = ({ children }) => { //(children) app.js ב UserProvi
     forumSport:{ uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/ForumSport.png" },
     forumYoung:{ uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/ForumYoung.png" },
     forumDeases:{ uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/ForumDeases.png" },
-    folder:{uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/folder.png"},
-    document:{uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/document.png"}
+    folder:{uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/folder.jpg"},
+    document:{uri: "https://proj.ruppin.ac.il/cgroup57/test2/tar1/Images/document.jpg"}
   };
 
 //--------------------- clear local storage ---------------------// הפעלה ידנית לצורך בדיקות בזמן הפיתוח

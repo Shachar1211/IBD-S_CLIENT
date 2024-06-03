@@ -1,4 +1,4 @@
-import React, { useState,useRef} from 'react';
+import React, { useState, useRef} from 'react';
 import { TouchableOpacity,StyleSheet, View,Image, Text,TextInput,Alert } from 'react-native';
 import { Button } from 'react-native-paper';
 import AppFooter from '../components/Footer';
@@ -9,14 +9,27 @@ import { Put, Delete,Get } from '../api';
 import * as Notifications from 'expo-notifications';
 
 export default function EditAlert({navigation, route}) {
-  const { CurrentDayShow, CurrentMonthShow, CurrentYearShow,alert,previousRouteName,currentEvent,events,handleUpdateAlert} = route.params;
+  const { CurrentDayShow, CurrentMonthShow, CurrentYearShow,alert,previousRouteName,currentEvent,handleUpdateAlert} = route.params;
   const {imagePaths,CurrentUser} = useUser();
   const [showRepeatPicker, setshowRepeatPicker] = useState(false);
   const [currentAlert, setcurrentAlert] = useState(alert);
   const [isDisabled, setIsDisabled] = useState(true);
   const [currentInputIndex, setCurrentInputIndex] = useState(-1);
+  const [alertsToChange, setalertsToChange] = useState([]);
+  var events=[];
   var alerts=[];// מערך של התראות של אירועים חוזרים
+  //var alertsToChange=[];
   const inputs = useRef([]);
+  
+  async function LoadEvents() {
+    let result = await Get(`api/CalendarEvents/user/${CurrentUser.id}`, CurrentUser.id);
+    if (!result) {
+      Alert.alert('טעינת אירועים נכשלה');
+    } else {
+      events=result;
+      console.log('CalendarEvent successful:', result);
+    }
+  }
 
   async function updateAlert(alert){
     let result= await Put(`api/Alerts/${alert.alertId}`, alert);
@@ -44,17 +57,25 @@ export default function EditAlert({navigation, route}) {
   }
 
   function updateChildEvents(action){
+    console.log('events',events);
+    console.log('alerts',alerts);
     for (let i = 0; i < events.length; i++) {
       if(currentEvent.parentEvent==events[i].eventId){//האבא
-        for (let j = i; j < events.length; j++) {
+        for (let j = 0; j < events.length; j++) {
           if(events[j].parentEvent==events[i].eventId){//הילדים
             for (let x = 0; x < alerts.length; x++) {
               if(events[j].eventId==alerts[x].eventId){ //ההתראות של האבא והילדים
+                if(currentAlert.aname==alerts[x].aname && currentAlert.arepeat==alerts[x].arepeat){
+                  var alert=alerts[x];
+                  var alertsarr=[...alertsToChange,alert];
+                  setalertsToChange(alertsarr);
+                }
                 if(action=='update'){
                   var updatedAlert={...currentAlert,alertId:alerts[x].alertId,eventId:alerts[x].eventId}
                   updateAlert(updatedAlert);
                 }
                 else{
+                  console.log('action',action);
                   deleteAlert(alerts[x]);
                 }
               }             
@@ -63,10 +84,12 @@ export default function EditAlert({navigation, route}) {
         }
       }
     }
+    console.log('alertsToChange',alertsToChange);
   }
 
   function witchEventsToUpdate(){
     LoadRepeatAlerts();
+    LoadEvents();
     if(previousRouteName=='AddEventToCalendar'){
       return;
     }
@@ -157,6 +180,7 @@ const fields = [
 
   function witchEventsToDelete(){
     LoadRepeatAlerts();
+    LoadEvents();
     if(currentEvent.parentEvent!=0){
     Alert.alert( 
               "מחיקת התראה",
@@ -193,7 +217,7 @@ async function deleteAlert(alert){
       setcurrentAlert('');
       console.log('delete successful:', result);
       await Notifications.cancelScheduledNotificationAsync(alert.identifier);
-      navigation.navigate(`${previousRouteName}`,{CurrentDayShow, CurrentMonthShow, CurrentYearShow,previousRouteName:'EditAlert'})
+      navigation.navigate(`${previousRouteName}`,{CurrentDayShow, CurrentMonthShow, CurrentYearShow,previousRouteName:'EditAlert',event:currentEvent})
   }
 }
 

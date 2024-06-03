@@ -4,17 +4,28 @@ import AppButton from '../components/buttons';
 import AppFooter from '../components/Footer';
 import AppHeader from '../components/Header';
 import { useUser } from '../components/UserContext';
-import {PostCalendarItem, Put} from '../api';
+import {PostCalendarItem, Put, Get} from '../api';
 import * as Notifications from 'expo-notifications';
 
 export default function AddAlert({navigation,route}) {
-  const { CurrentDayShow, CurrentMonthShow, CurrentYearShow,previousRouteName,chosenDate, eventId, events, event } = route.params;  
+  const { CurrentDayShow, CurrentMonthShow, CurrentYearShow,previousRouteName,chosenDate, eventId, event } = route.params;  
   const [Aname, setAname] = useState('');
   const [Arepeat, setArepeat] = useState('אף פעם');
   const {imagePaths, CurrentUser} = useUser();
   const [showRepeatPicker, setshowRepeatPicker] = useState(false);
   var currentAlert=[];
-  var scheduleAlerts=[]
+  var addedAlert;
+  var events=[];
+
+  async function LoadEvents() {
+    let result = await Get(`api/CalendarEvents/user/${CurrentUser.id}`, CurrentUser.id);
+    if (!result) {
+      Alert.alert('טעינת אירועים נכשלה');
+    } else {
+      events=result;
+      console.log('CalendarEvent successful:', result);
+    }
+  }
 
   async function updatedAlerts(alert){
     let result= await Put(`api/Alerts/${alert.alertId}`, alert);
@@ -59,7 +70,7 @@ export default function AddAlert({navigation,route}) {
           console.log('Add alert successful:', result);
           const targetDate = new Date(result.alertTime);
           await scheduleAndCancel(result.aname,targetDate,result); 
-          navigation.navigate(previousRouteName,{CurrentDayShow, CurrentMonthShow, CurrentYearShow});
+          navigation.navigate(previousRouteName,{CurrentDayShow, CurrentMonthShow, CurrentYearShow,event});
       } 
     }
   }
@@ -72,7 +83,7 @@ export default function AddAlert({navigation,route}) {
           console.log('result',result);
       }
       else {
-        scheduleAlerts.push(result);
+        addedAlert=result;
         console.log('Add alert successful:', result); 
         navigation.navigate(previousRouteName,{CurrentDayShow, CurrentMonthShow, CurrentYearShow});
       } 
@@ -86,10 +97,9 @@ async function AddChildAlerts(){
       for (let j = i+1; j < events.length; j++) {
         if(events[j].parentEvent==events[i].eventId){//הילדים
           var Calert={...currentAlert,eventId:events[j].eventId};
-          PostChildAlerts(Calert);
-          var length=scheduleAlerts.length;
-          const targetDate = new Date(scheduleAlerts[length].alertTime);
-          await scheduleAndCancel(scheduleAlerts[length].aname,targetDate,scheduleAlerts[length]);
+          await PostChildAlerts(Calert);
+          const targetDate = new Date(addedAlert.alertTime);
+          await scheduleAndCancel(addedAlert.aname,targetDate,addedAlert);
         }
       }
     }
@@ -97,6 +107,7 @@ async function AddChildAlerts(){
 }
 
   function witchAlertsToAdd(){
+    LoadEvents();
     if(previousRouteName=='AddEventToCalendar'){
       PostAlerts();
       return;
